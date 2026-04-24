@@ -24,6 +24,7 @@ app.set('views','myviews')
 
 //middleware & static files
 app.use(express.static('./myviews/public')); //this means myviews/public -> / so its the ROOT! so itll be accessed as /styles.css in the header while linking :)
+app.use(express.urlencoded({ extended: true})); //used for POST req so that data coming from FORM in create.ejs by post method to /blog is converted to READABLE DATA so that we can use it here in app.post as response!
 app.use(morgan('dev'));
 
 
@@ -45,7 +46,7 @@ app.get('/about', (req,res) => {
 
 //blog routes
 app.get('/blogs', (req,res) => {
-    Blog.find().sort({createdAt:1})
+    Blog.find().sort({createdAt: -1})
         .then((result) => {
             res.render('index', {title: 'All Blogs', blogs: result})
         })
@@ -55,11 +56,52 @@ app.get('/blogs', (req,res) => {
 })
 
 app.get('/blogs/create',(req,res) => {
-    res.render('create', {title: 'Create anew Blog'});
+    res.render('create', {title: 'Create a new Blog'});
 })
 
-//404 page (default)
 
+
+//POST BLOG METHOD (FROM CREATE.EJS)
+
+app.post('/blogs', (req, res) => {
+    const blog = new Blog(req.body); //req.body is used when data is coming from forms
+
+    blog.save()
+        .then((result) => {
+            res.redirect('/blogs');
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+})
+
+//blog details using blog id
+app.get('/blogs/:id', (req,res) => { //gotta use :id if we are looking for route parameter, cant use only id
+    const id = req.params.id; //obtaining data (id) from url
+    Blog.findById(id)
+        .then(result => {
+            res.render('details', { title: 'Blog Details', blog: result})
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+})
+
+//DELETE BLOG
+
+app.delete('/blogs/:id', (req, res) => {
+    const id = req.params.id;
+    Blog.findByIdAndDelete(id)
+        .then(result => {
+            res.json({redirect: '/blogs'})
+        })
+        .catch(err => {
+            console.log(err);
+        })
+})
+
+
+//404 page (default)
 //use function works for EVERY incoming request in case the code reaches this point and the code does not match any of the above cases
 //should always be at the VERY bottom
 app.use((req, res) => {

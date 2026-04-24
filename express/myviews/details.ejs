@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('./partials/header') %>
+<body>
+     <%- include('./partials/nav.ejs')%>
+  
+
+    <div class="details content">
+        <h2><%= blog.title %></h2>
+        <div class="content">
+            <p><%= blog.body %></p>
+        </div>
+        <a class="delete" data-doc="<%=blog._id %>">delete</a>
+    </div>
+    <%- include('./partials/footer.ejs')%>
+    
+    <script>
+        const trashcan = document.querySelector('a.delete');
+        trashcan.addEventListener('click', (e) => {
+            const endpoint = `/blogs/${trashcan.dataset.doc}`; //this reads the value of data-doc (custom attribute created to store blog id) ie the id of the current blog to be deleted and turns it into a URL (endpoint)
+
+            fetch(endpoint, { //fetch is a way for JavaScript (in browser) to send HTTP requests to a server
+                method: 'DELETE'
+            })
+                .then((response) => response.json())
+                .then((data) => window.location.href = data.redirect)
+                .catch(err => console.log(err));
+        })
+    </script>
+</body>
+</html>
+
+
+//fetch(url, options) (A way for the frontend to talk to backend)
+//where url -> WHERE the send the requests
+// options -> HOW to send the request
+// in this case it means send a DELETE request to the specified URL
+//other options are: GET, POST, DELETE, PUT
