@@ -1,4 +1,5 @@
 const express = require('express');
+const morgan = require('morgan'); //middleware provided by express itself
 
 // express app
 const app = express();
@@ -12,6 +13,11 @@ app.set('views','myviews')
 
 //listen for requests
 app.listen(3000);
+
+//middleware & static files
+app.use(express.static('./myviews/public')); //this means myviews/public -> / so its the ROOT! so itll be accessed as /styles.css in the header while linking :)
+
+app.use(morgan('dev'));
 
 app.get('/', (req,res) => {
    const blogs= [
