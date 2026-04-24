@@ -26,56 +26,32 @@ app.set('views','myviews')
 app.use(express.static('./myviews/public')); //this means myviews/public -> / so its the ROOT! so itll be accessed as /styles.css in the header while linking :)
 app.use(morgan('dev'));
 
-//mongoose and mongo sandbox routes
-app.get('/add-blog', (req,res) => {
-    const blog = new Blog({
-        title: 'new blog 22',
-        snippet: 'about my new blog',
-        body: 'more about my new blog'
-    });
-
-    blog.save()
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-})
-
-app.get('/all-blogs', (req,res) => {
-    Blog.find() //something to note: when we do blog.save() we call save method on an INSTANCE of the Blog model. 
-                // However when we call Blog.find() we directly call the find method ON THE MODEL ITSELF NOT AN INSTANCE OF IT
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-})
-
-app.get('/single-blog', (Req, res) => {
-    Blog.findById('69eb4967e63c1d2663b431af')
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-})
 
 app.get('/', (req,res) => {
-   const blogs= [
-    {title: 'Jheel finds eggs', snippet:'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rem fugiat soluta officiis rerum labore deleniti saepe dolore? Voluptate architecto aspernatur quisquam doloribus. Ducimus repudiandae ratione molestiae doloremque nisi enim hic.'},
-    {title: 'Jheel finds stars', snippet:'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rem fugiat soluta officiis rerum labore deleniti saepe dolore? Voluptate architecto aspernatur quisquam doloribus. Ducimus repudiandae ratione molestiae doloremque nisi enim hic.'},
-    {title: 'Jheel does laundry', snippet:'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rem fugiat soluta officiis rerum labore deleniti saepe dolore? Voluptate architecto aspernatur quisquam doloribus. Ducimus repudiandae ratione molestiae doloremque nisi enim hic.'},
-   ];
+    res.redirect('/blogs');
 
-    res.render('index', {title: 'Home', blogs}); //here {title: 'home' is passing data into views}
+//    const blogs= [
+//     {title: 'Jheel finds eggs', snippet:'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rem fugiat soluta officiis rerum labore deleniti saepe dolore? Voluptate architecto aspernatur quisquam doloribus. Ducimus repudiandae ratione molestiae doloremque nisi enim hic.'},
+//     {title: 'Jheel finds stars', snippet:'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rem fugiat soluta officiis rerum labore deleniti saepe dolore? Voluptate architecto aspernatur quisquam doloribus. Ducimus repudiandae ratione molestiae doloremque nisi enim hic.'},
+//     {title: 'Jheel does laundry', snippet:'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Rem fugiat soluta officiis rerum labore deleniti saepe dolore? Voluptate architecto aspernatur quisquam doloribus. Ducimus repudiandae ratione molestiae doloremque nisi enim hic.'},
+//    ];
+
+//    res.render('index', {title: 'Home', blogs}); //here {title: 'home' is passing data into views}
 })
 
 app.get('/about', (req,res) => {
    res.render('about', {title: 'About'})
+})
+
+//blog routes
+app.get('/blogs', (req,res) => {
+    Blog.find().sort({createdAt:1})
+        .then((result) => {
+            res.render('index', {title: 'All Blogs', blogs: result})
+        })
+        .catch((err)=> {
+            console.log(err);
+        })
 })
 
 app.get('/blogs/create',(req,res) => {
